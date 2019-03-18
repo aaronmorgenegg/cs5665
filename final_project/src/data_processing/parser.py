@@ -18,7 +18,8 @@ def tempParseFile():
     Dummy function for testing how parsing works
     :return:
     """
-    game = parseFile('data/pro/3-stream-Game_20190309T212217.slp') # zain vs swedish delight at gang 2
+    # game = parseFile('data/pro/3-stream-Game_20190309T212217.slp') # zain vs swedish delight at gang 2
+    game = parseFile('data/personal/Game_20190301T213337.slp') # One of my games
     print(game.metadata)
     print(game.start)
     print(game.end)
@@ -30,6 +31,5 @@ def tempParseFile():
                 string += ": "
                 string += str(data.post.state)
                 print(string)  # character's post-frame action state
-
 
 # tempParseFile()

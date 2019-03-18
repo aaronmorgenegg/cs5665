@@ -13,4 +13,36 @@ Frame(index=-123, ports=(Port(follower=None, leader=Data(post=Post(character=InG
 
 for frame in game.frames:
     data = frame.ports[0].leader # see also: port.follower (ICs)
-    print(data.post.state) # character's post-frame action state
+    print(data.post.state) # character's post-frame action
+
+# Next lets create a meta-frame log that breaks a series of frames into a series of discrete states
+States:
+    Neutral # Wait
+    Downed # knocked down, freefalling, hitstun
+    Dead # Dead or respawn
+    Wavedash
+    MovingGround # dashing, walking
+    MovingAir # Jumping, falling
+    AttackGround # ground attack
+    AttackAir # aerial attack
+    Shield # shielding
+    Dodge # rolling, spot dodge, non-wavedash airdodge
+
+# Lets define some stats I want to collect...
+# For all of these, accumulate aggregates and per character matchup stats.
+
+Combo: Starts on any hitstun, ends on kill or if defender is moveable on stage for X(45 or 60) frames, breaks if under Y(say 5-10) %.
+    Combos per stock
+    Combos per game
+    Combo Avg percent
+
+Edgeguard: Same as combo, but offstage and does not break.
+    Edgeguards per stock
+    Edgeguards per game
+    Edgeguards num Success
+    Edgeguards num Dropped
+    Edgeguards ratio(success/total)
+
+Poke: Damage(not necessarily hitstun) that is not sufficient percent to count as a combo
+
+
