@@ -18,7 +18,8 @@ for frame in game.frames:
 # Next lets create a meta-frame log that breaks a series of frames into a series of discrete states
 States:
     Neutral # Wait
-    Downed # knocked down, freefalling, hitstun
+    Downed # knocked down, freefalling,
+    Ledge # grabbing ledge, ledgeroll, getup attack
     Dead # Dead or respawn
     Wavedash
     MovingGround # dashing, walking
@@ -42,6 +43,17 @@ Edgeguard: Same as combo, but offstage and does not break.
     Edgeguards num Success
     Edgeguards num Dropped
     Edgeguards ratio(success/total)
+
+Stage Presence:
+    air time vs ground time
+
+Defensive Options
+    Escaping downed state successfully - compare % usage of options and success rate of each
+        OOS options - Mark these as escaping from shield after it's been damaged
+        tech options
+        chaingrab escape
+        combo escape
+        ledge escape
 
 Poke: Damage(not necessarily hitstun) that is not sufficient percent to count as a combo
 
