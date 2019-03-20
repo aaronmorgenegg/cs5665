@@ -13,6 +13,6 @@ def getGameStats(game, state_data):
     if STATE_DATA:
         game_stats['state_data'] = getStateData(game)
 
-        if STATE_RATIOS: game_stats['state_ratios'] = getStateRatios(game, state_data)
+        if STATE_RATIOS: game_stats['state_ratios'] = getStateRatios(state_data)
 
     return game_stats
