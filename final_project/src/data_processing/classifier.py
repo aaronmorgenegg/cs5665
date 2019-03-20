@@ -1,6 +1,9 @@
 from slippi.id import ActionState
 
 
+CLASSIFIER_LOG_FILE = "../logs/classifier_misc_states.txt"
+
+
 # State Classfiers
 STATE_CLASSIFIER_NEUTRAL       = 1
 STATE_CLASSIFIER_LEDGE         = 2
@@ -14,6 +17,21 @@ STATE_CLASSIFIER_ATTACK_AIR    = 9
 STATE_CLASSIFIER_SHIELD        = 10
 STATE_CLASSIFIER_DODGE         = 11
 STATE_CLASSIFIER_MISC          = 12
+
+STATE_NAMES = {
+    STATE_CLASSIFIER_NEUTRAL: 'neutral',
+    STATE_CLASSIFIER_LEDGE: 'ledge',
+    STATE_CLASSIFIER_DOWNED_GROUND: 'downed_ground',
+    STATE_CLASSIFIER_DOWNED_AIR: 'downed_air',
+    STATE_CLASSIFIER_DEAD: 'dead',
+    STATE_CLASSIFIER_MOVING_GROUND: 'moving_ground',
+    STATE_CLASSIFIER_MOVING_AIR: 'moving_air',
+    STATE_CLASSIFIER_ATTACK_GROUND: 'attack_ground',
+    STATE_CLASSIFIER_ATTACK_AIR: 'attack_air',
+    STATE_CLASSIFIER_SHIELD: 'shield',
+    STATE_CLASSIFIER_DODGE: 'dodge',
+    STATE_CLASSIFIER_MISC: 'misc'
+}
 
 # TODO: Clean up the Misc category, figure out what each of those states should be
 STATE_CLASSIFIERS = {
@@ -243,6 +261,7 @@ def getStateData(game):
 
     :param game: slippi game
     :return: list of frames containing discrete states
+    [[port1, port2],...,[port1, port2]]
     """
     state_data = []
     misc_states = []
@@ -251,7 +270,7 @@ def getStateData(game):
         frame_state = []
         for port in frame.ports:
             if port is None:
-                frame_state.append(None)
+                pass
             else:
                 data = port.leader
                 try:
@@ -265,7 +284,7 @@ def getStateData(game):
                 frame_state.append(state)
         state_data.append(frame_state)
 
-    with open("logs/classifier_misc_states.txt", "w") as myfile:
+    with open(CLASSIFIER_LOG_FILE, "w") as myfile:
         for item in misc_states:
             myfile.write("{},\n".format(str(item)))
 

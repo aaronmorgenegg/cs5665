@@ -6,6 +6,7 @@ PLAYER_COSTUME = 1
 
 # Game Stats
 # Set to T/F to track specified stat
+STATE_DATA = True
 STATE_RATIOS = True
 COMBOS_NUM = False
 COMBOS_PER_STOCK = False
