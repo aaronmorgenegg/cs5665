@@ -276,7 +276,7 @@ def getStateData(game):
                 try:
                     state = classify(data.post.state)
                 except Exception as e:
-                    state = 'misc'
+                    state = STATE_CLASSIFIER_MISC
                     if data.post.state not in misc_states:
                         misc_states.append(data.post.state)
                 # TODO: need to check for wavedashes
