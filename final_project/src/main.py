@@ -1,6 +1,13 @@
-from src.runner.runner import runMultipleTrials
+import sys
 
-runMultipleTrials("../data/personal/")
+from src.runner.runner import runMultipleTrials, runTrial
+
+if len(sys.argv) < 2:
+    runMultipleTrials("../data/personal/")
+else:
+    filename = sys.argv[1].split(".slp")[0].split("/")[-1]
+    directory = sys.argv[1].split(".slp")[0].split(filename)[0]
+    runTrial(directory, filename)
 
 # for i, frame in enumerate(game.frames):
 #     print("Frame: {}".format(i))

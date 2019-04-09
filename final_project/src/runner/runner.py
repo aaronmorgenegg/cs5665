@@ -10,9 +10,12 @@ def runTrial(directory, filename):
     game = parseFile(directory + filename)
     game_stats = getGameStats(game)
     graphGameStats(game_stats, "{}{}".format(filename, "{}"))
+    return game_stats
 
 def runMultipleTrials(directory):
     """Run trial on every slp file in directory"""
     for filename in os.listdir(directory):
         if filename.endswith(".slp"):
             runTrial(directory, filename)
+
+    # TODO: run aggregate trials, looking at data across multiple games
