@@ -51,7 +51,7 @@ def getComboData(game_stats):
                     player_2_state = state
         if i == 0: pass
         else:
-            # TODO: identify attacks that are part of a combo
+            # identify attacks that are part of a combo
             # PLAYER 1 COMBOS PLAYER 2
             if player_1_state == STATE_CLASSIFIER_ATTACK_GROUND or STATE_CLASSIFIER_ATTACK_AIR:
                 if player_2_state == STATE_CLASSIFIER_DOWNED_GROUND or STATE_CLASSIFIER_DOWNED_AIR or STATE_CLASSIFIER_SHIELD:
@@ -108,9 +108,22 @@ def getComboData(game_stats):
                     pass
 
             # TODO: player 2 combos player 1
-            # TODO: need to look at start and end frames for all attacks and combos and calculate percent diff
 
         player_1_last_data = player_1_data
         player_2_last_data = player_2_data
 
+
+    calculatePercentages(game_stats['game'], combo_data)
     return combo_data
+
+def calculatePercentages(game, combo_data):
+    for i, player_combo in enumerate(combo_data):
+        for combo in player_combo:
+            combo.percent_start = game.frames[combo.start_frame].ports[(i+1)%2].leader.post.damage
+            combo.percent_end = combo.percent_start
+            for attack in combo.attacks:
+                start_percent = game.frames[attack.start_frame].ports[(i+1)%2].leader.post.damage
+                end_percent = game.frames[attack.end_frame].ports[(i+1)%2].leader.post.damage
+                attack.percent = end_percent - start_percent
+                combo.percent_end += attack.percent
+            combo.percent_total = combo.percent_end - combo.percent_start
