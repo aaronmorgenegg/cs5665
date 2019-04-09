@@ -1,5 +1,5 @@
 from src.data_processing.classifier import getStateData
-from src.data_processing.combos import getComboData
+from src.data_processing.combos import getComboData, getComboStats
 from src.stats.settings import STATE_RATIOS, STATE_DATA, COMBO_DATA
 from src.stats.states import getStateRatios, getStateRatioAirGround, getStateRatioAttackDefend
 
@@ -20,5 +20,6 @@ def getGameStats(game):
             game_stats['state_ratio_attack_defend'] = getStateRatioAttackDefend(game_stats['state_ratios'])
         if COMBO_DATA:
             game_stats['combo_data'] = getComboData(game_stats)
+            game_stats['combo_stats'] = getComboStats(game_stats)
 
     return game_stats

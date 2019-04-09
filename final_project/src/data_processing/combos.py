@@ -202,6 +202,7 @@ def getComboData(game_stats):
     return combo_data
 
 def calculatePercentages(game, combo_data):
+    # calculate percentages and trim data from getComboData
     for i, player_combo in enumerate(combo_data):
         for combo in player_combo:
             combo.percent_start = game.frames[combo.start_frame].ports[(i+1)%2].leader.post.damage
@@ -216,3 +217,23 @@ def calculatePercentages(game, combo_data):
             combo.percent_total = combo.percent_end - combo.percent_start
         combo_data[i] = [combo for combo in combo_data[i] if combo.percent_total > COMBO_PERCENT_THRESHOLD]
         combo_data[i] = [combo for combo in combo_data[i] if len(combo.attacks) >= COMBO_ATTACKS_THRESHOLD]
+
+def getComboStats(game_stats):
+    # Calculate stats about combos
+    combo_stats = [{}, {}] # player1, player2
+    for i, player_combo in enumerate(game_stats['combo_data']):
+        combo_stats[i]['num_combos'] = len(player_combo)
+        combo_stats[i]['avg_percent'] = getComboAveragePercent(player_combo)
+        combo_stats[i]['combos_per_stock'] = getCombosPerStock(player_combo, game_stats, i)
+    return combo_stats
+
+def getComboAveragePercent(combos):
+    total_percent = 0
+    for combo in combos:
+        total_percent += combo.percent_total
+    return total_percent/len(combos)
+
+def getCombosPerStock(combos, game_stats, player):
+    opponent_stocks = game_stats['game'].frames[-1].ports[(player+1)%2].leader.post.stocks
+    num_stocks = 4 # hardcode this to 4 stock games because we ain't savages
+    return len(combos)/(num_stocks-opponent_stocks)
