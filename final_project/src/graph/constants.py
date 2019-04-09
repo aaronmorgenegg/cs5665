@@ -1,1 +1,1 @@
-GRAPHS_FILE_TEMPLATE = "../graphs/{}.png"
+GRAPHS_FILE_TEMPLATE = "graphs/{}.png"

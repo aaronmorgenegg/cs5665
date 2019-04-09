@@ -1,7 +1,7 @@
 from slippi.id import ActionState
 
 
-CLASSIFIER_LOG_FILE = "../logs/classifier_misc_states.txt"
+CLASSIFIER_LOG_FILE = "logs/classifier_misc_states.txt"
 
 
 # State Classfiers
@@ -284,9 +284,12 @@ def getStateData(game):
                 frame_state.append(state)
         state_data.append(frame_state)
 
-    with open(CLASSIFIER_LOG_FILE, "w") as myfile:
-        for item in misc_states:
-            myfile.write("{},\n".format(str(item)))
+    try:
+        with open(CLASSIFIER_LOG_FILE, "w") as myfile:
+            for item in misc_states:
+                myfile.write("{},\n".format(str(item)))
+    except FileNotFoundError:
+        print("Warning: Classifier Log file {} not found".format(CLASSIFIER_LOG_FILE))
 
     return state_data
 
