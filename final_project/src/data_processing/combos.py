@@ -1,10 +1,12 @@
+import slippi
+
 from src.data_processing.classifier import STATE_CLASSIFIER_ATTACK_GROUND, STATE_CLASSIFIER_ATTACK_AIR, \
     STATE_CLASSIFIER_DOWNED_GROUND, STATE_CLASSIFIER_DOWNED_AIR, STATE_CLASSIFIER_SHIELD, STATE_CLASSIFIER_NEUTRAL, \
     STATE_CLASSIFIER_MOVING_GROUND, STATE_CLASSIFIER_DEAD
 
 COMBO_FRAME_THRESHOLD = 60 # Number of frames the defender must be in a grounded, 'active' state before a combo 'ends'
 COMBO_PERCENT_THRESHOLD = 5 # Ignore any combos less than this percent
-COMBO_ATTACKS_THRESHOLD = 1 # Ignore any combos consisting of less than this number of attacks
+COMBO_ATTACKS_THRESHOLD = 2 # Ignore any combos consisting of less than this number of attacks
 
 
 class Combo:
@@ -19,12 +21,22 @@ class Combo:
         self.finished = False
         self.combo_end_tally = 0
 
+    def __str__(self):
+        attack_string = "\n"
+        for attack in self.attacks:
+            attack_string += "  {}\n".format(attack)
+        return "Percent: {}\nAttacks: {}".format(round(self.percent_total), attack_string)
+
 class Attack:
     def __init__(self, name, start_frame):
         self.name = name
         self.start_frame = start_frame
         self.end_frame = start_frame
         self.percent = 0
+
+    def __str__(self):
+        attack_name = slippi.id.ActionState(self.name).name
+        return "{}:{}%".format(attack_name, round(self.percent))
 
 def getComboData(game_stats):
     """
@@ -33,6 +45,8 @@ def getComboData(game_stats):
     :param game_stats: game_stats object from stats.py
     :return: combo data
     """
+    # TODO: attack state name isn't always correct, probably due to projectiles, aerials, or delayed moves
+    # TODO: ex. a missile hit would read the state of samus as walking or jumping at the time the missile hits
     combo_data = [[], []] # player 1, player 2
     player_1_last_data = None
     player_2_last_data = None

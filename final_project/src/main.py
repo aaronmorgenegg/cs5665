@@ -13,7 +13,7 @@ else:
     game_stats = runTrial(directory, filename)
     print("Player 1 Combos:")
     for combo in game_stats['combo_data'][0]:
-        print("Moves: {} Percent: {}-{}".format(len(combo.attacks), combo.percent_start, combo.percent_end))
+        print(combo)
         # print(combo.attacks)
 
 
