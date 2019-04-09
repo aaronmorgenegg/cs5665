@@ -3,6 +3,8 @@ from src.data_processing.classifier import STATE_CLASSIFIER_ATTACK_GROUND, STATE
     STATE_CLASSIFIER_MOVING_GROUND, STATE_CLASSIFIER_DEAD
 
 COMBO_FRAME_THRESHOLD = 60 # Number of frames the defender must be in a grounded, 'active' state before a combo 'ends'
+COMBO_PERCENT_THRESHOLD = 5 # Ignore any combos less than this percent
+COMBO_ATTACKS_THRESHOLD = 1 # Ignore any combos consisting of less than this number of attacks
 
 
 class Combo:
@@ -34,6 +36,8 @@ def getComboData(game_stats):
     combo_data = [[], []] # player 1, player 2
     player_1_last_data = None
     player_2_last_data = None
+    player_1_free = True
+    player_2_free = True
     for i, frame in enumerate(game_stats['game'].frames):
         player_1_data = None
         player_1_state = None
@@ -79,35 +83,41 @@ def getComboData(game_stats):
 
             # UPDATE PLAYER 1 COMBOS
             if player_2_state == STATE_CLASSIFIER_NEUTRAL or player_2_state == STATE_CLASSIFIER_MOVING_GROUND:
-                # update combo frame tally, check if player 2 has escaped combo
-                try:
-                    last_combo = combo_data[0][-1]
-                    if not last_combo.finished:
-                        last_combo.combo_end_tally += 1
-                        if last_combo.combo_end_tally >= COMBO_FRAME_THRESHOLD:
-                            last_combo.finished = True
-                            last_combo.end_frame = i
-                except IndexError:
-                    pass
-            elif player_2_state == STATE_CLASSIFIER_DEAD:
-                # End the last combo due to leading to a kill
-                try:
-                    last_combo = combo_data[0][-1]
-                    last_combo.finished = True
-                    last_combo.kill = True
-                    last_combo.end_frame = i
-                except IndexError:
-                    pass
-            else:
-                # Set the last combo frame tally to 0 as the combo continues
+                # player 2 has escaped the combo, start the frame tally
+                player_2_free = True
+            elif player_2_state == STATE_CLASSIFIER_DOWNED_GROUND or player_2_state == STATE_CLASSIFIER_DOWNED_AIR:
+                # player 2 has gotten hit again, resume combo
+                player_2_free = False
                 try:
                     last_combo = combo_data[0][-1]
                     if not last_combo.finished:
                         last_combo.combo_end_tally = 0
                 except IndexError:
                     pass
+            elif player_2_state == STATE_CLASSIFIER_DEAD:
+                # End the last combo due to leading to a kill
+                player_2_free = True
+                try:
+                    last_combo = combo_data[0][-1]
+                    if not last_combo.finished:
+                        last_combo = combo_data[0][-1]
+                        last_combo.finished = True
+                        last_combo.kill = True
+                        last_combo.end_frame = i
+                except IndexError:
+                    pass
+            else:
+                if player_2_free:
+                    try:
+                        last_combo = combo_data[0][-1]
+                        if not last_combo.finished:
+                            last_combo.combo_end_tally += 1
+                            if last_combo.combo_end_tally >= COMBO_FRAME_THRESHOLD:
+                                last_combo.finished = True
+                                last_combo.end_frame = i
+                    except IndexError:
+                        pass
 
-            # TODO: player 2 combos player 1
             # PLAYER 2 COMBOS PLAYER 1
             if player_2_state == STATE_CLASSIFIER_ATTACK_GROUND or STATE_CLASSIFIER_ATTACK_AIR:
                 if player_1_state == STATE_CLASSIFIER_DOWNED_GROUND or STATE_CLASSIFIER_DOWNED_AIR or STATE_CLASSIFIER_SHIELD:
@@ -135,33 +145,40 @@ def getComboData(game_stats):
 
             # UPDATE PLAYER 2 COMBOS
             if player_1_state == STATE_CLASSIFIER_NEUTRAL or player_1_state == STATE_CLASSIFIER_MOVING_GROUND:
-                # update combo frame tally, check if player 1 has escaped combo
-                try:
-                    last_combo = combo_data[1][-1]
-                    if not last_combo.finished:
-                        last_combo.combo_end_tally += 1
-                        if last_combo.combo_end_tally >= COMBO_FRAME_THRESHOLD:
-                            last_combo.finished = True
-                            last_combo.end_frame = i
-                except IndexError:
-                    pass
-            elif player_1_state == STATE_CLASSIFIER_DEAD:
-                # End the last combo due to leading to a kill
-                try:
-                    last_combo = combo_data[1][-1]
-                    last_combo.finished = True
-                    last_combo.kill = True
-                    last_combo.end_frame = i
-                except IndexError:
-                    pass
-            else:
-                # Set the last combo frame tally to 0 as the combo continues
+                # player 1 has escaped the combo, start the frame tally
+                player_1_free = True
+            elif player_1_state == STATE_CLASSIFIER_DOWNED_GROUND or player_1_state == STATE_CLASSIFIER_DOWNED_AIR:
+                # player 1 has gotten hit again, resume combo
+                player_1_free = False
                 try:
                     last_combo = combo_data[1][-1]
                     if not last_combo.finished:
                         last_combo.combo_end_tally = 0
                 except IndexError:
                     pass
+            elif player_1_state == STATE_CLASSIFIER_DEAD:
+                # End the last combo due to leading to a kill
+                player_1_free = True
+                try:
+                    last_combo = combo_data[1][-1]
+                    if not last_combo.finished:
+                        last_combo = combo_data[1][-1]
+                        last_combo.finished = True
+                        last_combo.kill = True
+                        last_combo.end_frame = i
+                except IndexError:
+                    pass
+            else:
+                if player_1_free:
+                    try:
+                        last_combo = combo_data[1][-1]
+                        if not last_combo.finished:
+                            last_combo.combo_end_tally += 1
+                            if last_combo.combo_end_tally >= COMBO_FRAME_THRESHOLD:
+                                last_combo.finished = True
+                                last_combo.end_frame = i
+                    except IndexError:
+                        pass
 
         player_1_last_data = player_1_data
         player_2_last_data = player_2_data
@@ -178,5 +195,9 @@ def calculatePercentages(game, combo_data):
                 start_percent = game.frames[attack.start_frame].ports[(i+1)%2].leader.post.damage
                 end_percent = game.frames[attack.end_frame].ports[(i+1)%2].leader.post.damage
                 attack.percent = end_percent - start_percent
+            combo.attacks = [attack for attack in combo.attacks if attack.percent > 0] # Trim out attacks that deal 0 percent
+            for attack in combo.attacks:
                 combo.percent_end += attack.percent
             combo.percent_total = combo.percent_end - combo.percent_start
+        combo_data[i] = [combo for combo in combo_data[i] if combo.percent_total > COMBO_PERCENT_THRESHOLD]
+        combo_data[i] = [combo for combo in combo_data[i] if len(combo.attacks) >= COMBO_ATTACKS_THRESHOLD]

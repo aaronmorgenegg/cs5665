@@ -8,7 +8,14 @@ else:
     filename = sys.argv[1].split("/")[-1]
     directory = sys.argv[1].split(filename)[0]
     print("{},{}".format(directory, filename))
-    runTrial(directory, filename)
+    # runTrial(directory, filename)
+
+    game_stats = runTrial(directory, filename)
+    print("Player 1 Combos:")
+    for combo in game_stats['combo_data'][0]:
+        print("Moves: {} Percent: {}-{}".format(len(combo.attacks), combo.percent_start, combo.percent_end))
+        # print(combo.attacks)
+
 
 # for i, frame in enumerate(game.frames):
 #     print("Frame: {}".format(i))
