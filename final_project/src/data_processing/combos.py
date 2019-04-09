@@ -7,6 +7,7 @@ from src.data_processing.classifier import STATE_CLASSIFIER_ATTACK_GROUND, STATE
 COMBO_FRAME_THRESHOLD = 60 # Number of frames the defender must be in a grounded, 'active' state before a combo 'ends'
 COMBO_PERCENT_THRESHOLD = 5 # Ignore any combos less than this percent
 COMBO_ATTACKS_THRESHOLD = 2 # Ignore any combos consisting of less than this number of attacks
+ATTACKS_PERCENT_THRESHOLD = 4 # Ignore any attacks less than this percent (filters out lasers, jabs etc)
 
 
 class Combo:
@@ -209,7 +210,7 @@ def calculatePercentages(game, combo_data):
                 start_percent = game.frames[attack.start_frame].ports[(i+1)%2].leader.post.damage
                 end_percent = game.frames[attack.end_frame].ports[(i+1)%2].leader.post.damage
                 attack.percent = end_percent - start_percent
-            combo.attacks = [attack for attack in combo.attacks if attack.percent > 0] # Trim out attacks that deal 0 percent
+            combo.attacks = [attack for attack in combo.attacks if attack.percent >= ATTACKS_PERCENT_THRESHOLD]
             for attack in combo.attacks:
                 combo.percent_end += attack.percent
             combo.percent_total = combo.percent_end - combo.percent_start
