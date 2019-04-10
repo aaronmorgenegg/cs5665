@@ -48,6 +48,7 @@ def getComboData(game_stats):
     """
     # TODO: attack state name isn't always correct, probably due to projectiles, aerials, or delayed moves
     # TODO: ex. a missile hit would read the state of samus as walking or jumping at the time the missile hits
+    # TODO: need to have a getLastAttack function and classify combos based on downed state only
     combo_data = [[], []] # player 1, player 2
     player_1_last_data = None
     player_2_last_data = None
@@ -237,3 +238,14 @@ def getCombosPerStock(combos, game_stats, player):
     opponent_stocks = game_stats['game'].frames[-1].ports[(player+1)%2].leader.post.stocks
     num_stocks = 4 # hardcode this to 4 stock games because we ain't savages
     return len(combos)/(num_stocks-opponent_stocks)
+
+def printComboData(game_stats):
+    output = ""
+    for i, player_combos in enumerate(game_stats['combo_data']):
+        output += "Player {} Combos  :\n".format(i+1)
+        output += "Total Combos     : {}\n".format(game_stats['combo_stats'][i]['num_combos'])
+        output += "Combos Per Stock : {}\n".format(game_stats['combo_stats'][i]['combos_per_stock'])
+        output += "Avg. Combo %     : {}\n".format(game_stats['combo_stats'][i]['avg_percent'])
+        for combo in game_stats['combo_data'][i]:
+            output += str(combo) + "\n"
+    return output
