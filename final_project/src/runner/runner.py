@@ -2,6 +2,7 @@ import os
 
 from src.data_processing.combos import printComboData
 from src.data_processing.parser import parseFile
+from src.graph.fileIO import writeToFile
 from src.graph.graphGameStats import graphGameStats
 from src.stats.stats import getGameStats
 
@@ -11,7 +12,7 @@ def runTrial(directory, filename):
     game = parseFile(directory + filename)
     game_stats = getGameStats(game)
     graphGameStats(game_stats, "{}{}".format(filename, "{}"))
-    print(printComboData(game_stats))
+    writeToFile(printComboData(game_stats), "{}{}{}".format("output/", filename, "_combo_data.txt"))
     return game_stats
 
 def runMultipleTrials(directory):
