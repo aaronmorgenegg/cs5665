@@ -1,7 +1,7 @@
 from src.data_processing.classifier import getStateData
 from src.data_processing.combos import getComboData, getComboStats
-from src.data_processing.shield import getComboEscapeOutOfShieldData
-from src.stats.settings import STATE_RATIOS, STATE_DATA, COMBO_DATA, OUT_OF_SHIELD_DATA
+from src.data_processing.shield import getEscapeOutOfShieldData
+from src.stats.settings import STATE_RATIOS, STATE_DATA, COMBO_DATA, ESCAPE_OUT_OF_SHIELD_DATA
 from src.stats.states import getStateRatios, getStateRatioAirGround, getStateRatioAttackDefend
 
 
@@ -23,7 +23,7 @@ def getGameStats(game):
             game_stats['combo_data'] = getComboData(game_stats)
             game_stats['combo_stats'] = getComboStats(game_stats)
             game_stats['combo_stats'] = getComboStats(game_stats)
-            if OUT_OF_SHIELD_DATA:
-                game_stats['combo_escape_oos'] = getComboEscapeOutOfShieldData(game_stats)
+        if ESCAPE_OUT_OF_SHIELD_DATA:
+            game_stats['escape_oos'] = getEscapeOutOfShieldData(game_stats)
 
     return game_stats
