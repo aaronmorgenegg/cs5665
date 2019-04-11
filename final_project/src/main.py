@@ -3,7 +3,7 @@ import sys
 from src.runner.runner import runMultipleTrials, runTrial
 
 if len(sys.argv) < 2:
-    runMultipleTrials("../data/personal/")
+    runMultipleTrials("data/personal/")
 else:
     filename = sys.argv[1].split("/")[-1]
     directory = sys.argv[1].split(filename)[0]

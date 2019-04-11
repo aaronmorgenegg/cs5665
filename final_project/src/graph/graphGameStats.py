@@ -27,13 +27,13 @@ def graphRatios(state_ratios, filename_template, filename_desc):
         graphPieChart(array, labels, filename_template, filename_desc.format(str(i)))
 
 def graphOverallStateData(state_ratios, filename_template):
-    graphRatios(state_ratios, filename_template, "-player{}-state_ratio_overall")
+    graphRatios(state_ratios, filename_template, "player{}-state_ratio_overall")
 
 def graphAirGroundRatios(state_ratios, filename_template):
-    graphRatios(state_ratios, filename_template, "-player{}-state_ratio_air_ground")
+    graphRatios(state_ratios, filename_template, "player{}-state_ratio_air_ground")
 
 def graphAttackDefenseRatios(state_ratios, filename_template):
-    graphRatios(state_ratios, filename_template, "-player{}-state_ratio_attack_defense")
+    graphRatios(state_ratios, filename_template, "player{}-state_ratio_attack_defense")
 
 def graphPieChart(array, labels, filename_template, file_desc):
     plt.pie(array, labels=labels, autopct='%1.1f%%', startangle=90)
