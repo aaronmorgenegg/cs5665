@@ -1,4 +1,6 @@
-from src.data_processing.classifier import STATE_CLASSIFIER_SHIELD, STATE_CLASSIFIER_DODGE
+from src.data_processing.classifier import STATE_CLASSIFIER_SHIELD, STATE_CLASSIFIER_DODGE, \
+    STATE_CLASSIFIER_MOVING_GROUND, STATE_CLASSIFIER_DOWNED_GROUND, STATE_CLASSIFIER_DOWNED_AIR, \
+    STATE_CLASSIFIER_ATTACK_GROUND, STATE_CLASSIFIER_ATTACK_AIR, STATE_CLASSIFIER_NEUTRAL, STATE_CLASSIFIER_MOVING_AIR
 
 ESCAPE_FRAME_COUNT = 10 # number of frames to record for when a player drops shield
 
@@ -8,7 +10,9 @@ ESCAPE_STATE_WAVEDASH = 21
 ESCAPE_STATE_DASH = 22
 ESCAPE_STATE_JUMP = 23
 ESCAPE_STATE_ATTACK = 24
-ESCAPE_STATE_MISC = 25
+ESCAPE_STATE_ATTACKED = 25
+ESCAPE_STATE_TRADE = 26
+ESCAPE_STATE_MISC = 27
 
 ESCAPE_STATE_NAMES = {
     ESCAPE_STATE_ROLL: "roll",
@@ -16,6 +20,8 @@ ESCAPE_STATE_NAMES = {
     ESCAPE_STATE_DASH: "dash",
     ESCAPE_STATE_JUMP:"jump",
     ESCAPE_STATE_ATTACK: "attack",
+    ESCAPE_STATE_ATTACKED: "attacked",
+    ESCAPE_STATE_TRADE: "trade",
     ESCAPE_STATE_MISC: "misc"
 }
 
@@ -48,12 +54,38 @@ def getEscapeState(game_stats, frame, player):
     escape_state_list = []
     for k in range(ESCAPE_FRAME_COUNT):
         escape_state_list.append(game_stats['state_data'][frame + k][(player + 1) % 2])
+    return escape_state_list
     return classifyEscapeStateList(escape_state_list)
 
 def classifyEscapeStateList(escape_state_list):
     """Classify a list of states into escape-specific states, like wavedash, roll, attack"""
+    # If they are dodging the whole time, its a roll
     if escape_state_list.count(STATE_CLASSIFIER_DODGE) == ESCAPE_FRAME_COUNT:
         return ESCAPE_STATE_ROLL
+    # if they attack, it could be a trade or an attack out of shield
+    elif escape_state_list.count(STATE_CLASSIFIER_ATTACK_GROUND) + \
+         escape_state_list.count(STATE_CLASSIFIER_ATTACK_AIR) > 0:
+        if escape_state_list.count(STATE_CLASSIFIER_DOWNED_GROUND) + \
+         escape_state_list.count(STATE_CLASSIFIER_DOWNED_AIR) > 0:
+            # If they attack and then also get hit, it's a trade
+            return ESCAPE_STATE_TRADE
+        else:
+            # Otherwise its an attack OOS
+            return ESCAPE_STATE_ATTACK
+    elif escape_state_list.count(STATE_CLASSIFIER_DOWNED_GROUND) + \
+         escape_state_list.count(STATE_CLASSIFIER_DOWNED_AIR) > 0:
+        # If they get hit, then they were attacked out of shield
+        return ESCAPE_STATE_ATTACKED
+    elif escape_state_list[0] == STATE_CLASSIFIER_MOVING_GROUND and escape_state_list.count(STATE_CLASSIFIER_DODGE) >= 1:
+        # if they jumpsquat and then airdodge, thats a wavedash
+        return ESCAPE_STATE_WAVEDASH
+    # If they spent half the time moving on ground or standing, its a dash
+    elif escape_state_list.count(STATE_CLASSIFIER_MOVING_GROUND) + \
+         escape_state_list.count(STATE_CLASSIFIER_NEUTRAL) > ESCAPE_FRAME_COUNT//2:
+        return ESCAPE_STATE_DASH
+    elif escape_state_list.count(STATE_CLASSIFIER_MOVING_AIR) > 0:
+        return ESCAPE_STATE_JUMP
     else:
+        # Otherwise Idk what it is, fill in more conditions to reduce misc classifys
         return ESCAPE_STATE_MISC
 
