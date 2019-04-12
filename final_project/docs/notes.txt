@@ -1,3 +1,10 @@
+Useful Websites:
+https://github.com/project-slippi/project-slippi
+https://github.com/hohav/py-slippi
+https://py-slippi.readthedocs.io/en/latest/source/slippi.html#module-slippi.id
+https://docs.google.com/spreadsheets/d/1JX2w-r2fuvWuNgGb6D3Cs4wHQKLFegZe2jhbBuIhCG8/edit#gid=13
+
+
 # Parsing a slippi file example
 
 >>> from slippi import Game
