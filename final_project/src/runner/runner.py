@@ -2,6 +2,7 @@ import os
 
 from src.data_processing.combos import printComboData
 from src.data_processing.parser import parseFile
+from src.data_processing.shield import printEscapeShieldData
 from src.graph.fileIO import writeToFile, createDirectory
 from src.graph.graphGameStats import graphGameStats
 from src.stats.stats import getGameStats
@@ -15,6 +16,7 @@ def runTrial(directory, filename):
     createDirectory(path)
     graphGameStats(game_stats, "{}{}".format(path, "{}"))
     writeToFile(printComboData(game_stats), "{}{}".format(path, "combo_data.txt"))
+    writeToFile(printEscapeShieldData(game_stats), "{}{}".format(path, "escape_shield_data.txt"))
     return game_stats
 
 def runMultipleTrials(directory):

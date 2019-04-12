@@ -2,7 +2,8 @@ from src.data_processing.classifier import STATE_CLASSIFIER_SHIELD, STATE_CLASSI
     STATE_CLASSIFIER_MOVING_GROUND, STATE_CLASSIFIER_DOWNED_GROUND, STATE_CLASSIFIER_DOWNED_AIR, \
     STATE_CLASSIFIER_ATTACK_GROUND, STATE_CLASSIFIER_ATTACK_AIR, STATE_CLASSIFIER_NEUTRAL, STATE_CLASSIFIER_MOVING_AIR
 
-ESCAPE_FRAME_COUNT = 10 # number of frames to record for when a player drops shield
+ESCAPE_FRAME_COUNT = 10 # number of frames to record state for when a player drops shield
+ESCAPE_PUNISH_FRAMES_COUNT = 30 # number of frames to check whether a player has been punished for a particular OOS option
 
 
 ESCAPE_STATE_ROLL = 20
@@ -30,7 +31,7 @@ def getEscapeOutOfShieldData(game_stats):
     """
 
     :param game_stats:
-    :return: [[], []] # player 1, player 2
+    :return: [[[oos_state, damage_taken]], []] # player 1, player 2
     """
     shield_escape_data = [[], []]
     for i, frame in enumerate(game_stats['game'].frames):
@@ -52,10 +53,12 @@ def getEscapeOutOfShieldData(game_stats):
 
 def getEscapeState(game_stats, frame, player):
     escape_state_list = []
+    other_player = (player + 1) % 2
+    start_damage = game_stats['game'].frames[frame].ports[other_player].leader.post.damage
     for k in range(ESCAPE_FRAME_COUNT):
-        escape_state_list.append(game_stats['state_data'][frame + k][(player + 1) % 2])
-    return escape_state_list
-    return classifyEscapeStateList(escape_state_list)
+        escape_state_list.append(game_stats['state_data'][frame + k][other_player])
+    end_damage = game_stats['game'].frames[frame+ESCAPE_PUNISH_FRAMES_COUNT].ports[other_player].leader.post.damage
+    return [classifyEscapeStateList(escape_state_list), end_damage-start_damage]
 
 def classifyEscapeStateList(escape_state_list):
     """Classify a list of states into escape-specific states, like wavedash, roll, attack"""
@@ -89,3 +92,14 @@ def classifyEscapeStateList(escape_state_list):
         # Otherwise Idk what it is, fill in more conditions to reduce misc classifys
         return ESCAPE_STATE_MISC
 
+def printEscapeShieldData(game_stats):
+    output = ""
+    for i, player_shield in enumerate(game_stats['escape_oos']):
+        output += "Player {} OOS Options  :\n".format(i + 1)
+        output += "Total OOS Situations    : {}\n".format(len(game_stats['escape_oos'][i]))
+        output += "Total OOS punished      : {}\n".format(len([o for o in game_stats['escape_oos'][i] if o[1] > 0]))
+        for oos in game_stats['escape_oos'][i]:
+            if oos[1] > 0: punished = True
+            else: punished = False
+            output += ESCAPE_STATE_NAMES[oos[0]] + ": Punished: {}".format(punished) + "\n"
+    return output
